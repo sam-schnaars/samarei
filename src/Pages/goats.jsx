@@ -104,6 +104,12 @@ const Goats = () => {
       alt: 'Gauss',
       link: "https://www.linkedin.com/in/colin-o-brien-bb27a1214/"
     },
+    { 
+      src: '/1712612598000.jpeg',
+      text: "Jovanny Martinez",
+      alt: 'Jovanny',
+      link: "https://www.renemagritte.org/the-lovers-2.jsp"
+    },
 
   ];
 

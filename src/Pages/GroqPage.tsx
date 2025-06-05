@@ -10,6 +10,7 @@ interface GroqChatCompletionResponse {
     };
   }[];
 }
+
 const configValue : string = import.meta.env.VITE_GROQ_API_KEY || "";
 console.log('configValue', configValue);
 const groq = new Groq({
@@ -35,8 +36,9 @@ export default function GroqPage() {
   const [arrayData, setArray] = useState<string[][]>([]);
 
   const promptArray: string[] = [
-    `Given the context: "${context}", give me exactly ten single word synonyms of "${question}". Return no other text, such as any kind of introduction. Separate each synonym with a comma.`,
-    `Given the context: "${context}", give me three artistic metaphors / lytics for "${question}" on how a rapper, such as Immortal Texhnique or Andre 3k, would articulate it. Separate each with a comma and return no other text.`,
+    `Given the context: "${context}", give me exactly ten single word synonyms of "${question}". Return no other text, such as any kind of introduction. Separate each synonym with a space and then a |.`,
+    `Given the context: "${context}", give me three artistic artistic quotes / lines on "${question}" from incredible people. Separate each with a | and return no other text. Lets say I ask for quotes about love you should return this:
+    “Love is composed of a single soul inhabiting two bodies.” — Aristotle | “Where there is love there is life.” — Mahatma Gandhi | “To love and be loved is to feel the sun from both sides.” — David Viscott`,
   ];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -49,6 +51,7 @@ export default function GroqPage() {
       let newArrayData: string[][] = [];
       for (const prompt of promptArray) {
         const content = await getGroqChatCompletion(prompt);
+        console.log(content.choices[0]?.message?.content)
         newArrayData.push(textToArray(content.choices[0]?.message?.content || ''));
       }
       setArray(newArrayData);
@@ -145,5 +148,23 @@ export default function GroqPage() {
 }
 
 const textToArray = (text: string): string[] => {
-  return text.replace(/['"]/g, '').split(',').map((item: string) => item.trim());
+  // If it matches the quote format, use regex to extract them
+  const quoteRegex = /“([^”]+)”\s+—\s+([^|]+)/g;
+  const quoteMatches: string[] = [];
+  let match;
+  while ((match = quoteRegex.exec(text)) !== null) {
+    quoteMatches.push(`"${match[1]}" — ${match[2].trim()}`);
+  }
+
+  if (quoteMatches.length > 0) {
+    return quoteMatches;
+  }
+
+  // Otherwise, treat it as a synonyms list separated by " |"
+  return text
+    .split('|')
+    .map((word) => word.trim())
+    .filter((word) => word.length > 0);
 };
+
+
