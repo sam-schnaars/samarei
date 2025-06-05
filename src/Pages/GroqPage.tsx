@@ -12,7 +12,6 @@ interface GroqChatCompletionResponse {
 }
 
 const configValue : string = import.meta.env.VITE_GROQ_API_KEY || "";
-console.log('configValue', configValue);
 const groq = new Groq({
     apiKey: configValue,
   dangerouslyAllowBrowser: true,
