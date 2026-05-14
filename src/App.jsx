@@ -19,6 +19,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="/people" element={<Goats/>} />
           <Route path="/art" element={<ImageGalleryComponent/>} />
+          <Route path="/:toolSlug" element={<HomePage/>} />
         </Route>
         </Routes>
       </BrowserRouter>

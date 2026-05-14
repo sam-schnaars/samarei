@@ -99,13 +99,13 @@ const Goats = () => {
       link: 'https://en.wikipedia.org/wiki/Roy_Clay'
     },
     { 
-      src: '/IMG_7177.jpeg',
+      src: '/IMG_7177.webp',
       text: "Colin O'brien",
       alt: 'Gauss',
       link: "https://www.linkedin.com/in/colin-o-brien-bb27a1214/"
     },
     { 
-      src: '/1712612598000.jpeg',
+      src: '/1712612598000.webp',
       text: "Jovanny Martinez",
       alt: 'Jovanny',
       link: "https://www.renemagritte.org/the-lovers-2.jsp"
@@ -130,6 +130,11 @@ const Goats = () => {
               <img 
                 src={image.src} 
                 alt={image.alt} 
+                width={192}
+                height={192}
+                loading={index < 4 ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchpriority={index < 2 ? 'high' : 'auto'}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">

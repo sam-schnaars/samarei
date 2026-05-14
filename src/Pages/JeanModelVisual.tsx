@@ -10,7 +10,7 @@ const JeanModelWithFixedLayout = () => {
   const containerRef = useRef(null);
   
   // GradCAM example image - this will be the one fixed image shown
-  const gradcamImage = "/gradcam_p13-517.png"; // Update this to your actual image path
+  const gradcamImage = "/gradcam_p13-517.webp";
   
   // Check if image actually loads
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -168,6 +168,8 @@ const JeanModelWithFixedLayout = () => {
                 <img 
                   src={gradcamImage} 
                   alt="GradCAM visualization of jean classification"
+                  loading="lazy"
+                  decoding="async"
                   className="w-[100%] h-[80%] object-contain"
                 />
             </div>

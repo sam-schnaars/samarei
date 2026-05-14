@@ -1,88 +1,201 @@
 "use client";
 
-import React, { useState } from "react";
-import Spinning3DObject from "./3dVectors";
-import JeanModelWithFixedLayout from "./JeanModelVisual";
-import GroqPage from "./GroqPage";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { tools, getToolBySlug } from "./toolsData";
 
-const components = [
-  () => <div className="w-full h-full"><Spinning3DObject /></div>,
-  () => <div className="w-full h-full"><JeanModelWithFixedLayout /></div>,
-  () => <div className="flex items-center justify-center text-black text-2xl w-full h-full"><GroqPage></GroqPage></div>,
-];
+export default function FunTools() {
+  const { toolSlug } = useParams<{ toolSlug: string }>();
+  const navigate = useNavigate();
 
-const componentTitles = [
-  () => <h1 className="text-2xl font-serif">interactive linear algebra vector visualization with 3js</h1>,
-  () => <h1 className="text-2xl font-serif">computer vision for denim</h1>,
-  () => <h1 className="text-2xl font-serif">a chatgpt w-rapper for synonyms</h1>,
-];
+  const expandedCardRef = useRef<HTMLDivElement | null>(null);
 
+  const resolvedInitial = toolSlug && getToolBySlug(toolSlug) ? toolSlug : null;
+  const [openSlug, setOpenSlug] = useState<string | null>(resolvedInitial);
+  // Only set once the card's layout animation has finished. On a direct
+  // URL hit (deep link) the container is already inflated, so seed it.
+  const [inflatedSlug, setInflatedSlug] = useState<string | null>(
+    resolvedInitial,
+  );
 
-export default function ScrollableShowcase() {
-  const [index, setIndex] = useState(0);
+  // Keep state in sync with URL (e.g. back/forward navigation).
+  useEffect(() => {
+    setOpenSlug(toolSlug && getToolBySlug(toolSlug) ? toolSlug : null);
+  }, [toolSlug]);
 
-  const prevSlide = () => {
-    setIndex((prev) => (prev === 0 ? components.length - 1 : prev - 1));
+  // When the open card changes (or closes / swaps), tear down the previously
+  // mounted tool immediately so its UI doesn't ride the collapse animation.
+  useEffect(() => {
+    if (openSlug !== inflatedSlug) {
+      setInflatedSlug(null);
+    }
+  }, [openSlug, inflatedSlug]);
+
+  // Update document title for nicer share previews / tab labels.
+  useEffect(() => {
+    const tool = openSlug ? getToolBySlug(openSlug) : null;
+    const previous = document.title;
+    document.title = tool ? `${tool.title} — samarei.com` : previous;
+    return () => {
+      document.title = previous;
+    };
+  }, [openSlug]);
+
+  // Smoothly bring the expanded card into view once it has been laid out.
+  useEffect(() => {
+    if (!openSlug) return;
+    const id = window.setTimeout(() => {
+      expandedCardRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [openSlug]);
+
+  const handleClose = useCallback(() => {
+    setOpenSlug(null);
+    navigate("/");
+  }, [navigate]);
+
+  // Close on Escape while a tool is open.
+  useEffect(() => {
+    if (!openSlug) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openSlug, handleClose]);
+
+  const handleOpen = (slug: string) => {
+    setOpenSlug(slug);
+    navigate(`/${slug}`);
   };
-
-  const nextSlide = () => {
-    setIndex((prev) => (prev + 1) % components.length);
-  };
-
-  const ActiveComponent = components[index];
-  const ActiveTitle = componentTitles[index];
 
   return (
-    <div className="w-full flex flex-col items-center justify-center bg-white py-16">
+    <div className="w-full flex flex-col items-center bg-white py-16">
       <div className="w-full max-w-7xl px-4 md:px-8 lg:px-12">
-  <div className="flex flex-col items-center">
-    <div className="flex flex-col md:flex-row items-center">
-      <h1 className="text-4xl font-thin text-black mt-2">fun tools</h1>
-    </div>
-
-    <div className="text-center font-extralight">
-      <ActiveTitle />
-    </div>
-  </div>
-
-        
-        <div className="relative w-full max-w-7xl mx-auto flex items-center">
-          <button
-            onClick={prevSlide}
-            className="hidden md:block absolute -left-16 top-1/2 transform -translate-y-1/2 z-10 bg-white text-black border border-gray-300 p-3 rounded-full shadow-md hover:bg-gray-100 transition"
-          >
-            ←
-          </button>
-          
-          <div className="w-full h-[75vh] border border-gray-300 rounded-lg shadow-md overflow-hidden">
-            <div className="h-full w-full">
-              <ActiveComponent />
-            </div>
-            
-            {/* Mobile arrows (inside) */}
-            <button
-              onClick={prevSlide}
-              className="md:hidden absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-white text-black border border-gray-300 p-3 rounded-full shadow-md hover:bg-gray-100 transition"
-            >
-              ←
-            </button>
-            
-            <button
-              onClick={nextSlide}
-              className="md:hidden absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-white text-black border border-gray-300 p-3 rounded-full shadow-md hover:bg-gray-100 transition"
-            >
-              →
-            </button>
-          </div>
-          
-          <button
-            onClick={nextSlide}
-            className="hidden md:block absolute -right-16 top-1/2 transform -translate-y-1/2 z-10 bg-white text-black border border-gray-300 p-3 rounded-full shadow-md hover:bg-gray-100 transition"
-          >
-            →
-          </button>
+        <div className="flex flex-col items-center mb-10 md:mb-14">
+          <h1 className="text-4xl font-thin text-black mt-2">fun tools</h1>
+          <p className="text-sm font-extralight text-gray-600 mt-3">
+            click a preview to expand it
+          </p>
         </div>
-        
+
+        <div className="grid grid-cols-4 gap-3 sm:gap-5 md:gap-6">
+          {tools.map((tool) => {
+            const isOpen = openSlug === tool.slug;
+            const isInflated = inflatedSlug === tool.slug;
+            const ActiveComponent = tool.component;
+
+            return (
+              <motion.div
+                key={tool.slug}
+                layout
+                ref={isOpen ? expandedCardRef : undefined}
+                transition={{ type: "spring", stiffness: 160, damping: 26 }}
+                onLayoutAnimationComplete={() => {
+                  if (openSlug === tool.slug) {
+                    setInflatedSlug(tool.slug);
+                  }
+                }}
+                className={`relative rounded-lg overflow-hidden border bg-white ${
+                  isOpen
+                    ? "col-span-4 border-gray-300 shadow-lg cursor-default"
+                    : "border-gray-200 hover:border-black/40 hover:shadow-md cursor-pointer"
+                }`}
+                onClick={isOpen ? undefined : () => handleOpen(tool.slug)}
+                role={isOpen ? undefined : "button"}
+                tabIndex={isOpen ? -1 : 0}
+                onKeyDown={(e) => {
+                  if (isOpen) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleOpen(tool.slug);
+                  }
+                }}
+                aria-label={isOpen ? undefined : `open ${tool.title}`}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {isOpen ? (
+                    <motion.div
+                      key="expanded"
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        transition: { duration: 0.25, delay: 0.4 },
+                      }}
+                      exit={{
+                        opacity: 0,
+                        transition: { duration: 0.08 },
+                      }}
+                    >
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClose();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleClose();
+                          }
+                        }}
+                        aria-label={`close ${tool.title}`}
+                        className="block w-full text-left px-4 md:px-6 py-4 border-b border-gray-200 transition-opacity hover:opacity-60 cursor-pointer"
+                      >
+                        <h2 className="text-2xl md:text-3xl font-serif text-black truncate">
+                          {tool.title}
+                        </h2>
+                        <p className="text-sm font-extralight text-gray-600 mt-1">
+                          {tool.description}
+                        </p>
+                      </div>
+                      <div className="w-full h-[75vh] bg-white">
+                        {isInflated && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                            className="w-full h-full"
+                          >
+                            <ActiveComponent />
+                          </motion.div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="preview"
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        transition: { duration: 0.25, delay: 0.4 },
+                      }}
+                      exit={{
+                        opacity: 0,
+                        transition: { duration: 0.08 },
+                      }}
+                    >
+                      <div className="aspect-[16/10] w-full flex flex-col items-center justify-center text-center px-3 py-4 bg-white">
+                        <h2 className="text-black text-sm sm:text-base md:text-2xl font-serif leading-tight">
+                          {tool.title}
+                        </h2>
+                        <p className="hidden md:block text-xs sm:text-sm text-gray-600 font-extralight mt-2">
+                          {tool.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

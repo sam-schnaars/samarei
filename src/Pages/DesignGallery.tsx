@@ -198,6 +198,8 @@ const ImageComponent = ({ image }) => {
         <img
           src={image.src}
           alt={image.title}
+          decoding="async"
+          referrerPolicy="no-referrer"
           className="max-h-full max-w-full rounded-lg shadow-lg object-contain"
         />
       </div>

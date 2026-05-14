@@ -75,7 +75,7 @@ const Hero = () => {
         <div className="flex flex-col justify-center items-center w-full px-[5vw] mb-32">
           <article className="flex flex-col md:flex-row justify-between items-start w-full max-w-6xl gap-16">
             {/* Text Content */}
-            <div className="flex-1">
+            <div className="flex-[2]">
               <p className="text-xl text-black leading-relaxed mb-8">{detailedBio1}</p>
               <p className="text-xl text-black leading-relaxed mb-8">{detailedBio2}</p>
               <p className="text-xl text-black leading-relaxed mb-8">{detailedBio3}</p>
@@ -98,13 +98,15 @@ const Hero = () => {
                   src={largeProfileImage}
                   alt={`${author}'s profile picture`}
                   loading="eager"
-                  width={700}
-                  height={500}
+                  fetchPriority="high"
+                  decoding="async"
+                  width={400}
+                  height={285}
                   className="w-full h-auto object-cover"
                 />
               </div>
               <p className="mt-3 text-sm italic text-center text-black">
-                Me and my CalHacks team (9th place 🤩)
+                I named him Vesty.
               </p>
             </div>
           </article>
