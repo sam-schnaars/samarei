@@ -1,4 +1,5 @@
 import React from 'react';
+import ImageWithLoader from '../components/ImageWithLoader';
 
 const Goats = () => {
   const images = [
@@ -127,15 +128,16 @@ const Goats = () => {
               rel="noopener noreferrer"
               className="relative w-48 h-48 overflow-hidden group"
             >
-              <img 
-                src={image.src} 
-                alt={image.alt} 
+              <ImageWithLoader
+                src={image.src}
+                alt={image.alt}
                 width={192}
                 height={192}
                 loading={index < 4 ? 'eager' : 'lazy'}
                 decoding="async"
                 fetchpriority={index < 2 ? 'high' : 'auto'}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                wrapperClassName="block w-full h-full"
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <p className="text-white text-center p-3 font-serif">

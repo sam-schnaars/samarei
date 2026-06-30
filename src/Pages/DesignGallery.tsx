@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ImageWithLoader from "../components/ImageWithLoader";
 
 const images =  [
   {
@@ -195,12 +196,15 @@ const ImageComponent = ({ image }) => {
   return (
     <div key={image.index} className="w-full shadow-lg">
       <div className="w-full h-[70vh] bg-white flex justify-center items-center p-4">
-        <img
+        <ImageWithLoader
+          key={image.src}
           src={image.src}
           alt={image.title}
           decoding="async"
           referrerPolicy="no-referrer"
           className="max-h-full max-w-full rounded-lg shadow-lg object-contain"
+          wrapperClassName="flex justify-center items-center w-full h-full rounded-lg"
+          spinnerSize="lg"
         />
       </div>
       <div className="w-full h-32 bg-white flex items-center justify-center">

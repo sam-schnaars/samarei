@@ -36,7 +36,7 @@ export const siteData: SiteProps = {
   externalHireLink: 'https://linkedin.com/in/sam-schnaars',
   externalHireLinkName: 'Linkedin',
   // in this case, upwork | change it if you want
-  description: `I'm Sam Schnaars - a software / product engineer; scroll down to learn more about me.`,
+  description: `I'm Sam Schnaars, a product engineer; scroll down to learn more about me.`,
   footerBriefBio:
     'If you like what you see, please contact me anytime. Click the below gif!',
   siteKeywords:

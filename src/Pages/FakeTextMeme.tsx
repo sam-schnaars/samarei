@@ -169,6 +169,9 @@ export default function FakeTextMeme(): React.ReactElement {
   const [colorOverrides, setColorOverrides] = useState<Record<string, string>>({});
   const [exporting, setExporting] = useState<null | 'download' | 'share'>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
+  // Which panel is visible on mobile. Desktop (≥ lg) shows both side-by-side
+  // regardless of this state.
+  const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
 
   const canShareFiles =
     typeof navigator !== 'undefined' &&
@@ -335,33 +338,99 @@ export default function FakeTextMeme(): React.ReactElement {
     }
   };
 
+  const downloadIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+      className="w-4 h-4"
+    >
+      <path d="M10 3a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.75A.75.75 0 0 1 10 3Z" />
+      <path d="M3.5 13.75a.75.75 0 0 1 .75.75v1.5c0 .138.112.25.25.25h11a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 15.5 17.5h-11a1.75 1.75 0 0 1-1.75-1.75v-1.5a.75.75 0 0 1 .75-.75Z" />
+    </svg>
+  );
+
+  const shareIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+      className="w-4 h-4"
+    >
+      <path d="M13 4.5a2.5 2.5 0 1 1 .83 1.86l-5.1 2.94a2.5 2.5 0 0 1 0 1.4l5.1 2.94a2.5 2.5 0 1 1-.75 1.3l-5.1-2.94a2.5 2.5 0 1 1 0-3.96l5.1-2.94A2.5 2.5 0 0 1 13 4.5Z" />
+    </svg>
+  );
+
   return (
-    <div className="w-full h-full overflow-auto bg-gray-50">
-      <div className="mx-auto max-w-6xl p-4 sm:p-6 flex flex-col lg:flex-row gap-6">
+    <div className="w-full h-full overflow-auto bg-gray-50 flex flex-col">
+      {/* Mobile tab bar - sticky to the top of the scrolling tool container */}
+      <div className="lg:hidden sticky top-0 z-20 bg-gray-50/95 backdrop-blur border-b border-gray-200">
+        <div
+          role="tablist"
+          aria-label="Meme generator panels"
+          className="mx-auto max-w-6xl px-3 py-2 flex gap-2"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobileTab === 'edit'}
+            onClick={() => setMobileTab('edit')}
+            className={`flex-1 text-sm font-medium py-2.5 rounded-md transition ${
+              mobileTab === 'edit'
+                ? 'bg-black text-white shadow-sm'
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobileTab === 'preview'}
+            onClick={() => setMobileTab('preview')}
+            className={`flex-1 text-sm font-medium py-2.5 rounded-md transition ${
+              mobileTab === 'preview'
+                ? 'bg-black text-white shadow-sm'
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Preview
+          </button>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl w-full p-3 sm:p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 flex-1">
         {/* Editor */}
-        <div className="lg:w-1/2 flex flex-col gap-4">
-          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
+        <div
+          className={`lg:w-1/2 flex-col gap-4 ${
+            mobileTab === 'edit' ? 'flex' : 'hidden lg:flex'
+          }`}
+        >
+          <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <h2 className="text-lg font-semibold text-gray-800">Messages</h2>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={addMessage}
-                  className="text-sm bg-black text-white px-3 py-1.5 rounded-md hover:opacity-90 transition"
+                  className="text-sm bg-black text-white px-3 py-2 rounded-md hover:opacity-90 transition"
                 >
-                  + Add message
+                  <span className="sm:hidden">+ Add</span>
+                  <span className="hidden sm:inline">+ Add message</span>
                 </button>
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="text-sm border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition"
+                  className="text-sm border border-gray-300 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-100 transition"
                 >
                   Reset
                 </button>
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="text-sm border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition"
+                  className="text-sm border border-gray-300 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-100 transition"
                 >
                   Clear
                 </button>
@@ -376,7 +445,7 @@ export default function FakeTextMeme(): React.ReactElement {
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span
-                      className="inline-block w-3 h-3 rounded-full border border-gray-300"
+                      className="inline-block w-3 h-3 rounded-full border border-gray-300 shrink-0"
                       style={{ backgroundColor: colorFor(m.name) }}
                       aria-hidden="true"
                     />
@@ -385,14 +454,14 @@ export default function FakeTextMeme(): React.ReactElement {
                       value={m.name}
                       onChange={(e) => updateMessage(m.id, { name: e.target.value })}
                       placeholder="Name"
-                      className="flex-1 text-sm font-medium text-gray-800 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-black"
+                      className="flex-1 min-w-0 text-base sm:text-sm font-medium text-gray-800 bg-white border border-gray-300 rounded px-2 py-2 sm:py-1 focus:outline-none focus:ring-1 focus:ring-black"
                     />
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 shrink-0">
                       <button
                         type="button"
                         onClick={() => moveMessage(m.id, -1)}
                         disabled={idx === 0}
-                        className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 text-sm sm:text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Move up"
                       >
                         ↑
@@ -401,7 +470,7 @@ export default function FakeTextMeme(): React.ReactElement {
                         type="button"
                         onClick={() => moveMessage(m.id, 1)}
                         disabled={idx === messages.length - 1}
-                        className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 text-sm sm:text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Move down"
                       >
                         ↓
@@ -410,7 +479,7 @@ export default function FakeTextMeme(): React.ReactElement {
                         type="button"
                         onClick={() => removeMessage(m.id)}
                         disabled={messages.length <= 1}
-                        className="text-xs px-2 py-1 border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 text-sm sm:text-xs px-2 py-1 border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Delete message"
                       >
                         ✕
@@ -422,15 +491,25 @@ export default function FakeTextMeme(): React.ReactElement {
                     onChange={(e) => updateMessage(m.id, { text: e.target.value })}
                     placeholder="Message text..."
                     rows={3}
-                    className="w-full text-sm text-gray-800 bg-white border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-black resize-y"
+                    className="w-full text-base sm:text-sm text-gray-800 bg-white border border-gray-300 rounded px-2 py-2 sm:py-1.5 focus:outline-none focus:ring-1 focus:ring-black resize-y"
                   />
                 </div>
               ))}
+
+              {/* Mobile-friendly footer add button so users don't have to scroll
+                  back to the top to add another message. */}
+              <button
+                type="button"
+                onClick={addMessage}
+                className="sm:hidden text-sm font-medium border border-dashed border-gray-300 text-gray-700 rounded-md py-3 hover:bg-gray-100 transition"
+              >
+                + Add another message
+              </button>
             </div>
           </div>
 
           {/* Color controls */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">Name colors</h3>
             {uniqueNames.length === 0 ? (
               <p className="text-sm text-gray-500">Add a name to assign a color.</p>
@@ -441,21 +520,34 @@ export default function FakeTextMeme(): React.ReactElement {
                   const current = colorFor(name);
                   const overridden = key in colorOverrides;
                   return (
-                    <div key={key} className="flex items-center gap-3">
-                      <span
-                        className="font-semibold text-sm truncate max-w-[40%]"
-                        style={{ color: current }}
-                        title={name}
-                      >
-                        {name}
-                      </span>
-                      <div className="flex flex-wrap gap-1.5 flex-1">
+                    <div
+                      key={key}
+                      className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3"
+                    >
+                      <div className="flex items-center justify-between gap-2 sm:max-w-[40%]">
+                        <span
+                          className="font-semibold text-sm truncate"
+                          style={{ color: current }}
+                          title={name}
+                        >
+                          {name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => clearOverride(name)}
+                          disabled={!overridden}
+                          className="sm:hidden text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          Auto
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 sm:gap-1.5 flex-1">
                         {PALETTE.map((c) => (
                           <button
                             key={c}
                             type="button"
                             onClick={() => setOverride(name, c)}
-                            className={`w-5 h-5 rounded-full border ${
+                            className={`w-7 h-7 sm:w-5 sm:h-5 rounded-full border ${
                               current.toLowerCase() === c.toLowerCase()
                                 ? 'border-black ring-2 ring-offset-1 ring-black'
                                 : 'border-gray-300'
@@ -469,7 +561,7 @@ export default function FakeTextMeme(): React.ReactElement {
                         type="button"
                         onClick={() => clearOverride(name)}
                         disabled={!overridden}
-                        className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="hidden sm:inline-block text-xs px-2 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         Auto
                       </button>
@@ -479,33 +571,29 @@ export default function FakeTextMeme(): React.ReactElement {
               </div>
             )}
           </div>
-
         </div>
 
         {/* Preview */}
-        <div className="lg:w-1/2">
-          <div className="sticky top-4 flex flex-col gap-3">
+        <div
+          className={`lg:w-1/2 ${
+            mobileTab === 'preview' ? 'block' : 'hidden lg:block'
+          }`}
+        >
+          <div className="lg:sticky lg:top-4 flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm uppercase tracking-wider text-gray-500">
                 Preview
               </h2>
-              <div className="flex flex-wrap items-center gap-2 justify-end">
+              {/* Desktop-only action buttons — on mobile they live in the
+                  sticky bottom bar so they're always reachable. */}
+              <div className="hidden lg:flex flex-wrap items-center gap-2 justify-end">
                 <button
                   type="button"
                   onClick={handleDownload}
                   disabled={exporting !== null}
                   className="text-sm bg-black text-white px-4 py-2 rounded-md hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    className="w-4 h-4"
-                  >
-                    <path d="M10 3a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.75A.75.75 0 0 1 10 3Z" />
-                    <path d="M3.5 13.75a.75.75 0 0 1 .75.75v1.5c0 .138.112.25.25.25h11a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 15.5 17.5h-11a1.75 1.75 0 0 1-1.75-1.75v-1.5a.75.75 0 0 1 .75-.75Z" />
-                  </svg>
+                  {downloadIcon}
                   {exporting === 'download' ? 'Rendering…' : 'Download'}
                 </button>
                 {canShareFiles && (
@@ -515,15 +603,7 @@ export default function FakeTextMeme(): React.ReactElement {
                     disabled={exporting !== null}
                     className="text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                      className="w-4 h-4"
-                    >
-                      <path d="M13 4.5a2.5 2.5 0 1 1 .83 1.86l-5.1 2.94a2.5 2.5 0 0 1 0 1.4l5.1 2.94a2.5 2.5 0 1 1-.75 1.3l-5.1-2.94a2.5 2.5 0 1 1 0-3.96l5.1-2.94A2.5 2.5 0 0 1 13 4.5Z" />
-                    </svg>
+                    {shareIcon}
                     {exporting === 'share' ? 'Preparing…' : 'Share'}
                   </button>
                 )}
@@ -539,7 +619,7 @@ export default function FakeTextMeme(): React.ReactElement {
               </span>
             )}
             <div
-              className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 sm:p-8"
+              className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6 lg:p-8"
               style={{
                 fontFamily:
                   "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
@@ -557,7 +637,7 @@ export default function FakeTextMeme(): React.ReactElement {
                       >
                         {m.name || '\u00A0'}
                       </div>
-                      <div className="text-base sm:text-lg text-black leading-snug whitespace-pre-wrap">
+                      <div className="text-base sm:text-lg text-black leading-snug whitespace-pre-wrap break-words">
                         {m.text}
                       </div>
                     </div>
@@ -566,6 +646,32 @@ export default function FakeTextMeme(): React.ReactElement {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile-only sticky action bar so Download/Share are always reachable */}
+      <div className="lg:hidden sticky bottom-0 z-30 bg-white/95 backdrop-blur border-t border-gray-200">
+        <div className="mx-auto max-w-6xl px-3 py-2 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={exporting !== null}
+            className="flex-1 text-sm font-medium bg-black text-white px-4 py-3 rounded-md hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+          >
+            {downloadIcon}
+            {exporting === 'download' ? 'Rendering…' : 'Download'}
+          </button>
+          {canShareFiles && (
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={exporting !== null}
+              className="flex-1 text-sm font-medium border border-gray-300 text-gray-700 px-4 py-3 rounded-md hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+            >
+              {shareIcon}
+              {exporting === 'share' ? 'Preparing…' : 'Share'}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useTypewriter } from 'react-simple-typewriter';
 import { detailedBio, siteData } from '../../siteData';
 import ScrollableShowcase from "./FunTools";
 import SimpleAnimatedArrow from './AnimatedArrow';
+import ImageWithLoader from '../components/ImageWithLoader';
 
 const Hero = () => {
   const {
@@ -40,12 +41,14 @@ const Hero = () => {
                 rel="noreferrer"
                 className="transition-opacity hover:opacity-70"
               >
-                <img
+                <ImageWithLoader
                   src="/icons/github.svg"
                   alt={`github logo for ${author}`}
                   width={30}
                   height={30}
                   loading="eager"
+                  spinnerSize="sm"
+                  wrapperClassName="inline-block w-[30px] h-[30px]"
                 />
               </a>
               <a 
@@ -54,12 +57,14 @@ const Hero = () => {
                 rel="noreferrer"
                 className="transition-opacity hover:opacity-70"
               >
-                <img
+                <ImageWithLoader
                   src="/icons/linkedin.svg"
                   alt={`linkedin logo for ${author}`}
                   width={30}
                   height={30}
                   loading="eager"
+                  spinnerSize="sm"
+                  wrapperClassName="inline-block w-[30px] h-[30px]"
                 />
               </a>
             </section>
@@ -94,7 +99,7 @@ const Hero = () => {
             {/* img */}
             <div className="flex-1 flex flex-col w-full md:mt-0 mt-16">
               <div className="overflow-hidden">
-                <img
+                <ImageWithLoader
                   src={largeProfileImage}
                   alt={`${author}'s profile picture`}
                   loading="eager"
@@ -103,6 +108,8 @@ const Hero = () => {
                   width={400}
                   height={285}
                   className="w-full h-auto object-cover"
+                  wrapperClassName="block w-full aspect-[400/285]"
+                  spinnerSize="lg"
                 />
               </div>
               <p className="mt-3 text-sm italic text-center text-black">

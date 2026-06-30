@@ -3,6 +3,7 @@ import Spinning3DObject from "./3dVectors";
 import JeanModelWithFixedLayout from "./JeanModelVisual";
 import GroqPage from "./GroqPage";
 import FakeTextMeme from "./FakeTextMeme";
+import ConstructionMaps from "./ConstructionMaps";
 
 export interface Tool {
   slug: string;
@@ -12,6 +13,12 @@ export interface Tool {
 }
 
 export const tools: Tool[] = [
+  {
+    slug: "construction-maps",
+    title: "us construction maps",
+    description: "live maps of where 5 major us cities are building, from city permit data",
+    component: ConstructionMaps,
+  },
   {
     slug: "fake-text-meme",
     title: "fake text meme generator",

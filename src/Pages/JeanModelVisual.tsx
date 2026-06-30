@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import ImageWithLoader from '../components/ImageWithLoader';
 
 const JeanModelWithFixedLayout = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -165,12 +166,14 @@ const JeanModelWithFixedLayout = () => {
           <div className="flex-1 flex flex-col">
             {/* GradCAM Image - taking most of the space */}
             <div className="flex-1 relative rounded overflow-hidden">
-                <img 
-                  src={gradcamImage} 
+                <ImageWithLoader
+                  src={gradcamImage}
                   alt="GradCAM visualization of jean classification"
                   loading="lazy"
                   decoding="async"
                   className="w-[100%] h-[80%] object-contain"
+                  wrapperClassName="block w-full h-full"
+                  spinnerSize="lg"
                 />
             </div>
             
