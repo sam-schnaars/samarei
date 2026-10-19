@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/((?!_vercel/).*)", "destination": "/" }
+    { "source": "/((?!_vercel/|api/).*)", "destination": "/" }
   ],
   "headers": [
     {
