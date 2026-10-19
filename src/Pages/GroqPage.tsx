@@ -1,44 +1,27 @@
 'use client';
 
 import React, { useState } from 'react';
-import Groq from 'groq-sdk';
 
-interface GroqChatCompletionResponse {
-  choices: {
-    message?: {
-      content?: string | null;
-    };
-  }[];
+interface SynonymsResponse {
+  synonyms: string;
+  quotes: string;
 }
 
-const configValue : string = import.meta.env.VITE_GROQ_API_KEY || "";
-const groq = new Groq({
-    apiKey: configValue,
-  dangerouslyAllowBrowser: true,
-});
-
-export async function getGroqChatCompletion(question: string): Promise<GroqChatCompletionResponse> {
-  return groq.chat.completions.create({
-    messages: [
-      {
-        role: 'user',
-        content: question,
-      },
-    ],
-    model: 'llama3-8b-8192',
+// The Groq call runs server-side in /api/synonyms so the API key never ships to the browser.
+async function fetchSynonyms(word: string, context: string): Promise<SynonymsResponse> {
+  const res = await fetch('/api/synonyms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ word, context }),
   });
+  if (!res.ok) throw new Error(`synonyms request failed (${res.status})`);
+  return res.json();
 }
 
 export default function GroqPage() {
   const [question, setQuestion] = useState<string>('');
   const [context, setContext] = useState<string>('');
   const [arrayData, setArray] = useState<string[][]>([]);
-
-  const promptArray: string[] = [
-    `Given the context: "${context}", give me exactly ten single word synonyms of "${question}". Return no other text, such as any kind of introduction. Separate each synonym with a space and then a |.`,
-    `Given the context: "${context}", give me three artistic artistic quotes / lines on "${question}" from incredible people. Separate each with a | and return no other text. Lets say I ask for quotes about love you should return this:
-    “Love is composed of a single soul inhabiting two bodies.” — Aristotle | “Where there is love there is life.” — Mahatma Gandhi | “To love and be loved is to feel the sun from both sides.” — David Viscott`,
-  ];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -47,13 +30,8 @@ export default function GroqPage() {
       return;
     }
     try {
-      let newArrayData: string[][] = [];
-      for (const prompt of promptArray) {
-        const content = await getGroqChatCompletion(prompt);
-        console.log(content.choices[0]?.message?.content)
-        newArrayData.push(textToArray(content.choices[0]?.message?.content || ''));
-      }
-      setArray(newArrayData);
+      const { synonyms, quotes } = await fetchSynonyms(question, context);
+      setArray([textToArray(synonyms), textToArray(quotes)]);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
