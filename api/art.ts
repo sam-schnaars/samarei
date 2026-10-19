@@ -8,7 +8,7 @@
 // images/<id>-<random>.jpg for the picture and items/<id>.json for its details.
 // Anyone can also send a picture through /api/submit (the samarei.com/submit page).
 import { del, list } from "@vercel/blob";
-import { addPicture, allItems, auth, clean, decodeBase64, download, json } from "./_lib/art";
+import { addPicture, allItems, auth, clean, decodeBase64, download, json } from "./_lib/art.js";
 
 export async function GET(request: Request): Promise<Response> {
   if (!auth(request, false)) return json({ error: "unauthorized" }, 401);

@@ -5,7 +5,7 @@
 //   GET   /api/submit                       { open: boolean }
 //   POST  /api/submit                       { imageBase64 | imageUrl, title, artist?, name?, website, startedAt }
 //   PATCH /api/submit  (Bearer write token) { paused: boolean }
-import { addPicture, allItems, auth, clean, decodeBase64, download, ipHash, json, readConfig, writeConfig } from "./_lib/art";
+import { addPicture, allItems, auth, clean, decodeBase64, download, ipHash, json, readConfig, writeConfig } from "./_lib/art.js";
 
 const PER_PERSON_PER_HOUR = 3;
 const PER_DAY = 40;
