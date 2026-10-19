@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import ImageWithLoader from "../components/ImageWithLoader";
 
 const images =  [
@@ -188,6 +189,9 @@ const ImageGalleryComponent = () => {
           </div>
         </div>
       </div>
+      <p className="text-center font-serif text-lg py-6">
+        <Link to="/submit" className="underline">Send a picture to my TV →</Link>
+      </p>
     </div>
   );
 };
