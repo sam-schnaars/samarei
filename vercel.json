@@ -1,6 +1,8 @@
 {
   "rewrites": [
-    { "source": "/((?!_vercel/|api/).*)", "destination": "/" }
+    { "source": "/mobile", "destination": "https://sammyword.vercel.app/mobile" },
+    { "source": "/mobile/:path*", "destination": "https://sammyword.vercel.app/mobile/:path*" },
+    { "source": "/((?!_vercel/|api/|mobile).*)", "destination": "/" }
   ],
   "headers": [
     {
