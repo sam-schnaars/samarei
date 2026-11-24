@@ -4,6 +4,7 @@ import JeanModelWithFixedLayout from "./JeanModelVisual";
 import GroqPage from "./GroqPage";
 import FakeTextMeme from "./FakeTextMeme";
 import ConstructionMaps from "./ConstructionMaps";
+import DroneSim from "./DroneSim";
 
 export interface Tool {
   slug: string;
@@ -14,9 +15,15 @@ export interface Tool {
 
 export const tools: Tool[] = [
   {
+    slug: "drone",
+    title: "drone sim",
+    description: "fly the $40 drone i reverse-engineered, in 3d, with its real control protocol",
+    component: DroneSim,
+  },
+  {
     slug: "construction-maps",
     title: "us construction maps",
-    description: "live maps of where 5 major us cities are building, from city permit data",
+    description: "live maps of where 5 major us cities are building, from city permit data (bring your own mapbox key)",
     component: ConstructionMaps,
   },
   {
@@ -40,7 +47,7 @@ export const tools: Tool[] = [
   {
     slug: "synonyms",
     title: "synonym generator",
-    description: "a tiny chatgpt wrapper for finding synonyms",
+    description: "synonyms and quotes from llama on groq (bring your own key)",
     component: GroqPage,
   },
 ];

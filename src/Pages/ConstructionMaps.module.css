@@ -16,18 +16,6 @@
   font-family: "Newsreader", Georgia, "Times New Roman", serif;
 }
 
-.mapMissing {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  text-align: center;
-  color: #9aa3b2;
-  padding: 24px;
-}
-.mapMissing code {
-  color: #ffb020;
-}
-
 /* ---------- Floating glass panels ---------- */
 .panel {
   position: absolute;
