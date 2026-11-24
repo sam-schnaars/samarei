@@ -10,6 +10,7 @@ import MapGL, {
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import styles from "./ConstructionMaps.module.css";
+import ApiKeyGate, { ForgetKeyButton } from "../components/ApiKeyGate";
 
 /**
  * Live maps of where five major US cities are building, from each city's open
@@ -21,7 +22,6 @@ import styles from "./ConstructionMaps.module.css";
  * and a query builder. Adding another city is a matter of adding an entry.
  */
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAP_BOX_API_KEY as string | undefined;
 const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
 const SATELLITE_STYLE = "mapbox://styles/mapbox/satellite-streets-v12";
 const ROW_LIMIT = 8000;
@@ -373,7 +373,22 @@ function formatTotalValue(total: number): string {
   return `$${Math.round(total / 1_000)}K`;
 }
 
+// The shared Mapbox token was pulled after abuse; visitors bring their own public (pk.) token.
 export default function ConstructionMaps() {
+  return (
+    <ApiKeyGate
+      storageKey="samarei:mapbox-token"
+      provider="Mapbox"
+      getKeyUrl="https://account.mapbox.com/access-tokens/"
+      placeholder="pk.eyJ..."
+      validate={(k) => (k.startsWith("pk.") ? null : "use a public Mapbox token (starts with pk.)")}
+    >
+      {(token, clearKey) => <ConstructionMapView token={token} clearKey={clearKey} />}
+    </ApiKeyGate>
+  );
+}
+
+function ConstructionMapView({ token, clearKey }: { token: string; clearKey: () => void }) {
   const mapRef = useRef<MapRef>(null);
   const [cityKey, setCityKey] = useState("sf");
   const [windowDays, setWindowDays] = useState<WindowDays>(180);
@@ -430,21 +445,6 @@ export default function ConstructionMaps() {
     return { totalValue, units, topHoods };
   }, [permits]);
 
-  if (!MAPBOX_TOKEN) {
-    return (
-      <div className={styles.root}>
-        <div className={styles.mapMissing}>
-          <div>
-            <strong>Missing Mapbox token.</strong>
-            <p>
-              Set <code>VITE_MAP_BOX_API_KEY</code> in <code>.env</code> to render the map.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const handleClick = (e: MapMouseEvent) => {
     const feature = e.features?.[0] as { properties?: { id?: string } } | undefined;
     const id = feature?.properties?.id;
@@ -455,13 +455,18 @@ export default function ConstructionMaps() {
     <div className={styles.root}>
       <MapGL
         ref={mapRef}
-        mapboxAccessToken={MAPBOX_TOKEN}
+        mapboxAccessToken={token}
         initialViewState={city.center}
         mapStyle={satellite ? SATELLITE_STYLE : DARK_STYLE}
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
         interactiveLayerIds={["construction-points"]}
         cursor={cursor}
+        onError={(e) => {
+          // A revoked or wrong token: drop it so the key screen comes back.
+          const status = (e.error as { status?: number } | undefined)?.status;
+          if (status === 401 || status === 403) clearKey();
+        }}
         onLoad={(e) => {
           const map = e.target;
           map.resize();
@@ -481,6 +486,10 @@ export default function ConstructionMaps() {
         onMouseLeave={() => setCursor("grab")}
       >
         <NavigationControl position="top-right" showCompass={false} />
+        <ForgetKeyButton
+          onClick={clearKey}
+          className="absolute bottom-2 right-3 z-10 !text-gray-400 hover:!text-white"
+        />
         <Source id="permits" type="geojson" data={geojson}>
           <Layer {...circleLayer} />
         </Source>

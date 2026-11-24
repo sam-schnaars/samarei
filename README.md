@@ -1,12 +1,20 @@
-# React + Vite
+# samarei.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sam Schnaars' personal site. Vite + React, deployed on Vercel.
 
-Currently, two official plugins are available:
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- `src/Pages/toolsData.tsx`: the "fun tools" cards on the home page (each is a route, e.g. `/drone`).
+- `src/Pages/DroneSim.tsx`: 3D sim of the AMETA S20 Lite work ([repo](https://github.com/sam-schnaars/ameta-s20-lite)).
+- `src/components/ApiKeyGate.tsx`: "bring your own key" screen for tools whose shared keys were pulled
+  (Synonym AI uses Groq via `/api/synonyms` + `x-groq-key`; construction maps use a Mapbox `pk.` token).
+  Keys stay in the visitor's localStorage.
+- `api/`: Vercel functions (TV art feed, art submissions, synonyms).
+- `public/sammyword/`: static Sammy Word pages; `/mobile` proxies to the Sammy Word app.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Env vars (Vercel): `TV_ART_READ_TOKEN`, `TV_ART_WRITE_TOKEN`, `BLOB_READ_WRITE_TOKEN`. `GROQ_API_KEY` is optional
+(only used when a visitor sends no key).

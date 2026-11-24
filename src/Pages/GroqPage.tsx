@@ -1,27 +1,44 @@
-'use client';
-
 import React, { useState } from 'react';
+import ApiKeyGate, { ForgetKeyButton } from '../components/ApiKeyGate';
 
 interface SynonymsResponse {
   synonyms: string;
   quotes: string;
 }
 
-// The Groq call runs server-side in /api/synonyms so the API key never ships to the browser.
-async function fetchSynonyms(word: string, context: string): Promise<SynonymsResponse> {
+// The Groq call runs in /api/synonyms with the visitor's own key (x-groq-key); it is not stored.
+async function fetchSynonyms(word: string, context: string, apiKey: string): Promise<SynonymsResponse> {
   const res = await fetch('/api/synonyms', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-groq-key': apiKey },
     body: JSON.stringify({ word, context }),
   });
-  if (!res.ok) throw new Error(`synonyms request failed (${res.status})`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? `synonyms request failed (${res.status})`);
+  }
   return res.json();
 }
 
 export default function GroqPage() {
+  return (
+    <ApiKeyGate
+      storageKey="samarei:groq-key"
+      provider="Groq"
+      getKeyUrl="https://console.groq.com/keys"
+      placeholder="gsk_..."
+    >
+      {(apiKey, clearKey) => <SynonymAI apiKey={apiKey} clearKey={clearKey} />}
+    </ApiKeyGate>
+  );
+}
+
+function SynonymAI({ apiKey, clearKey }: { apiKey: string; clearKey: () => void }) {
   const [question, setQuestion] = useState<string>('');
   const [context, setContext] = useState<string>('');
   const [arrayData, setArray] = useState<string[][]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -29,11 +46,15 @@ export default function GroqPage() {
       setArray([]);
       return;
     }
+    setError(null);
+    setLoading(true);
     try {
-      const { synonyms, quotes } = await fetchSynonyms(question, context);
+      const { synonyms, quotes } = await fetchSynonyms(question, context, apiKey);
       setArray([textToArray(synonyms), textToArray(quotes)]);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,9 +62,12 @@ export default function GroqPage() {
     <div className="flex justify-center align-middle items-center p-6 sm:p-6 bg-gray-100 overflow-scroll rounded-lg w-[80%]  mx-[10vw]">
       <div className="w-full bg-white shadow-lg rounded-lg p-6 flex flex-col align-middle space-y-6">
         {/* Header */}
-        <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 text-center">
-          Synonym AI
-        </h1>
+        <div className="flex flex-col items-center gap-1">
+          <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 text-center">
+            Synonym AI
+          </h1>
+          <ForgetKeyButton onClick={clearKey} />
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-4">
@@ -77,9 +101,10 @@ export default function GroqPage() {
             type="submit"
             className="w-full sm:w-auto bg-custom-rgb text-white py-2 px-6 rounded-md hover:opacity-90 transition text-sm sm:text-base"
           >
-            Generate
+            {loading ? '...' : 'Generate'}
           </button>
         </form>
+        {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
         {/* Synonym Results */}
         <div className="flex flex-col sm:flex-row gap-6 flex-grow">
