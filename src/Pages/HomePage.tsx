@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTypewriter } from 'react-simple-typewriter';
 import { detailedBio, siteData } from '../../siteData';
-import ScrollableShowcase from "./FunTools";
 import Projects from "./Projects";
 import SimpleAnimatedArrow from './AnimatedArrow';
 import ImageWithLoader from '../components/ImageWithLoader';
@@ -72,11 +71,8 @@ const Hero = () => {
           </div>
         </div>
         
-        <Projects />
-
-        {/* Scrollable Showcase Component */}
         <div className="mb-32">
-          <ScrollableShowcase />
+          <Projects />
         </div>
         
         {/* Biography Section */}
