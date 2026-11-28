@@ -713,6 +713,23 @@ function DroneWriteup() {
         the stabilizing. The sim above speaks the same control frame.
       </p>
 
+      <figure className="mt-8 mx-auto max-w-xs">
+        <video
+          src="/drone/payload_drop.mp4"
+          poster="/drone/payload_drop_poster.webp"
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls
+          preload="metadata"
+          className="w-full aspect-[9/16] bg-gray-100 border border-gray-200 rounded-md"
+        />
+        <figcaption className="mt-2 text-sm text-gray-500 font-sans text-center">
+          the real thing: takeoff, flight, payload drop
+        </figcaption>
+      </figure>
+
       <div className="mt-8 grid gap-6 md:grid-cols-2 font-sans text-[15px] leading-relaxed text-gray-700">
         <div>
           <h4 className="font-serif text-xl text-black">flight control</h4>

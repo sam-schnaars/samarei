@@ -45,6 +45,6 @@ export const siteData: SiteProps = {
 };
 
 export const detailedBio: DetailedBioProps = {
-  detailedBio1: `Lately I've been reverse-engineering a $40 drone so I can fly it from Python, give it AI vision, and drop payloads with a 3D-printed latch. You can fly a simulation of it up in the fun tools.`,
+  detailedBio1: `Lately I've been reverse-engineering a $40 drone so I can fly it from Python, give it AI vision, and drop payloads with a 3D-printed latch. You can fly a simulation of it up above.`,
   detailedBio2: `Last month I built a robot that ranked investor pitches with a Chromebook, a speech-to-speech model, and a dynamic frontend leaderboard.`,
 };
